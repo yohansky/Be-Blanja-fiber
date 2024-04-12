@@ -10,6 +10,8 @@ require (
 	gorm.io/gorm v1.25.9
 )
 
+require github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+
 require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/google/uuid v1.5.0 // indirect
@@ -27,7 +29,7 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.51.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
-	golang.org/x/crypto v0.14.0 // indirect
+	golang.org/x/crypto v0.14.0
 	golang.org/x/sys v0.17.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	gorm.io/driver/postgres v1.5.7 // direct
