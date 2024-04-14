@@ -2,13 +2,13 @@ package controller
 
 import (
 	"backend-gin/src/config"
+	"backend-gin/src/middleware"
 	"backend-gin/src/models"
 	"strconv"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func Register(c *fiber.Ctx) error {
@@ -26,17 +26,16 @@ func Register(c *fiber.Ctx) error {
 		})
 	}
 
-	//hashed pass
-	password, _ := bcrypt.GenerateFromPassword([]byte(data["Password"]), 14)
-
 	user := models.User{
-		Name:     data["Name"],
-		Email:    data["Email"],
-		Phone:    data["Phone"],
-		Store:    data["Store"],
-		Password: password,
-		Role:     "Seller",
+		Name:  data["Name"],
+		Email: data["Email"],
+		Phone: data["Phone"],
+		Store: data["Store"],
+		// Password: password,
+		RoleId: 1,
 	}
+
+	user.SetPassword(data["Password"])
 
 	config.DB.Create(&user)
 
@@ -61,23 +60,28 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 
-	if err := bcrypt.CompareHashAndPassword(user.Password, []byte(data["Password"])); err != nil {
+	if err := user.ComparePassword(data["Password"]); err != nil {
 		c.Status(400)
 		return c.JSON(fiber.Map{
 			"Message": "incorrect Password",
 		})
 	}
 
-	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
-		Issuer:    strconv.Itoa(int(user.ID)),
-		ExpiresAt: time.Now().Add(time.Hour * 24).Unix(), //1 day
-	})
+	token, err := middleware.GenerateJwt(strconv.Itoa(int(user.ID)))
 
-	token, err := claims.SignedString([]byte("Secret"))
+	//Cookie
+	cookie := fiber.Cookie{
+		Name:     "jwt",
+		Value:    token,
+		Expires:  time.Now().Add(time.Hour * 24),
+		HTTPOnly: true,
+	}
+
+	c.Cookie(&cookie)
 
 	item := map[string]string{
 		"Email": data["Email"],
-		"Role":  user.Role,
+		"Role":  data["Role"],
 		"Token": token,
 	}
 
@@ -86,4 +90,40 @@ func Login(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(item)
+}
+
+type Claims struct {
+	jwt.StandardClaims
+}
+
+// Otentikasi
+func User(c *fiber.Ctx) error {
+	cookie := c.Cookies("jwt")
+
+	id, _ := middleware.ParseJwt(cookie)
+
+	var user models.User
+
+	config.DB.Where("id = ?", id).First(&user)
+
+	return c.JSON(user)
+}
+
+func Logout(c *fiber.Ctx) error {
+	cookie := fiber.Cookie{
+		Name:     "jwt",
+		Value:    "",
+		Expires:  time.Now().Add(-time.Hour),
+		HTTPOnly: true,
+	}
+
+	c.Cookie(&cookie)
+
+	return c.JSON(fiber.Map{
+		"Message": "Logout Success",
+	})
+}
+
+func UpdateInfo(c *fiber.Ctx) {
+
 }
