@@ -1,6 +1,6 @@
 package models
 
 type Permission struct {
-	Id   uint `json="id"`
+	Id   uint `json:"id"`
 	Name string
 }

@@ -42,6 +42,35 @@ func Register(c *fiber.Ctx) error {
 	return c.JSON(user)
 }
 
+func RegisterC(c *fiber.Ctx) error {
+	var data map[string]string
+
+	if err := c.BodyParser(&data); err != nil {
+		return err
+	}
+
+	//validasi jika password tidak amtch confirm password
+	if data["Password"] != data["Passwordconfirm"] {
+		c.Status(400)
+		return c.JSON(fiber.Map{
+			"Message": "Password do not match",
+		})
+	}
+
+	user := models.User{
+		Name:   data["Name"],
+		Email:  data["Email"],
+		Phone:  data["Phone"],
+		RoleId: 2,
+	}
+
+	user.SetPassword(data["Password"])
+
+	config.DB.Create(&user)
+
+	return c.JSON(user)
+}
+
 func Login(c *fiber.Ctx) error {
 	var data map[string]string
 
@@ -51,9 +80,9 @@ func Login(c *fiber.Ctx) error {
 
 	var user models.User
 
-	config.DB.Where("email = ?", data["Email"]).First(&user)
+	config.DB.Preload("Role").Where("email = ?", data["Email"]).First(&user)
 
-	if user.ID == 0 {
+	if user.Id == 0 {
 		c.Status(400)
 		return c.JSON(fiber.Map{
 			"Message": "Email not found",
@@ -67,7 +96,7 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 
-	token, err := middleware.GenerateJwt(strconv.Itoa(int(user.ID)))
+	token, err := middleware.GenerateJwt(strconv.Itoa(int(user.Id)))
 
 	//Cookie
 	cookie := fiber.Cookie{
@@ -79,9 +108,12 @@ func Login(c *fiber.Ctx) error {
 
 	c.Cookie(&cookie)
 
+	roleName := user.Role.Name
+
 	item := map[string]string{
 		"Email": data["Email"],
-		"Role":  data["Role"],
+		"Id":    strconv.Itoa(int(user.Id)),
+		"Role":  roleName,
 		"Token": token,
 	}
 
@@ -104,7 +136,7 @@ func User(c *fiber.Ctx) error {
 
 	var user models.User
 
-	config.DB.Where("id = ?", id).First(&user)
+	config.DB.Where("id = ?", id).Preload("Role").First(&user)
 
 	return c.JSON(user)
 }
@@ -124,6 +156,66 @@ func Logout(c *fiber.Ctx) error {
 	})
 }
 
-func UpdateInfo(c *fiber.Ctx) {
+func UpdateInfo(c *fiber.Ctx) error {
+	var data map[string]string
 
+	if err := c.BodyParser(&data); err != nil {
+		return err
+	}
+
+	cookie := c.Cookies("jwt")
+
+	id, _ := middleware.ParseJwt(cookie)
+
+	userId, _ := strconv.Atoi(id)
+
+	// var user models.User
+
+	user := models.User{
+		Id:    uint(userId),
+		Name:  data["Name"],
+		Email: data["Email"],
+		Phone: data["Phone"],
+		Store: data["Store"],
+	}
+
+	config.DB.Model(&user).Updates(user)
+
+	return c.JSON(user)
+}
+
+func UpdatePassword(c *fiber.Ctx) error {
+	var data map[string]string
+
+	if err := c.BodyParser(&data); err != nil {
+		return err
+	}
+
+	//validasi jika password tidak amtch confirm password
+	if data["Password"] != data["Passwordconfirm"] {
+		c.Status(400)
+		return c.JSON(fiber.Map{
+			"Message": "Password do not match",
+		})
+	}
+
+	cookie := c.Cookies("jwt")
+
+	id, _ := middleware.ParseJwt(cookie)
+
+	// var user models.User
+
+	userId, _ := strconv.Atoi(id)
+
+	user := models.User{
+		Id: uint(userId),
+	}
+
+	user.SetPassword(data["Password"])
+
+	config.DB.Model(&user).Updates(user)
+
+	return c.JSON(fiber.Map{
+		"Message": "Password has been Changed",
+	})
 }

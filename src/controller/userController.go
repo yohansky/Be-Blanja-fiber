@@ -3,7 +3,6 @@ package controller
 import (
 	"backend-gin/src/config"
 	"backend-gin/src/models"
-	"math"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -11,24 +10,8 @@ import (
 
 func AllUsers(c *fiber.Ctx) error {
 	page, _ := strconv.Atoi(c.Query("page", "1"))
-	limit := 5
-	offset := (page - 1) * limit
-	var total int64
 
-	var users []models.User
-
-	config.DB.Preload("Role").Offset(offset).Limit(limit).Find(&users)
-
-	config.DB.Model(&models.User{}).Count(&total)
-
-	return c.JSON(fiber.Map{
-		"data": users,
-		"meta": fiber.Map{
-			"total":     total,
-			"page":      page,
-			"last_page": math.Ceil(float64(int(total) / limit)),
-		},
-	})
+	return c.JSON(models.Paginate(config.DB, &models.User{}, page))
 }
 
 func CreateUser(c *fiber.Ctx) error {
@@ -51,7 +34,7 @@ func GetUser(c *fiber.Ctx) error {
 	// karena menggunakan Gorm.Model jadi tidak ada ID, maknaya harus di deklarasikan dulu jika ingin dipanggil IDnya
 	var user models.User
 
-	user.ID = uint(id)
+	user.Id = uint(id)
 
 	// user := models.User{
 	// 	user.ID: uint(id),
@@ -68,7 +51,7 @@ func UpdateUser(c *fiber.Ctx) error {
 	// karena menggunakan Gorm.Model jadi tidak ada kolom ID, maknaya harus di deklarasikan dulu jika ingin dipanggil IDnya
 	var user models.User
 
-	user.ID = uint(id)
+	user.Id = uint(id)
 
 	if err := c.BodyParser(&user); err != nil {
 		return err
@@ -85,7 +68,7 @@ func DeleteUser(c *fiber.Ctx) error {
 	// karena menggunakan Gorm.Model jadi tidak ada kolom ID, maknaya harus di deklarasikan dulu jika ingin dipanggil IDnya
 	var user models.User
 
-	user.ID = uint(id)
+	user.Id = uint(id)
 
 	config.DB.Delete(&user)
 

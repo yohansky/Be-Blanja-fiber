@@ -1,8 +1,7 @@
 module backend-gin
 
-go 1.22
-
-toolchain go1.22.2
+// go 1.22
+go 1.21.4
 
 require (
 	github.com/gofiber/fiber/v2 v2.52.4
