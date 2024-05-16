@@ -44,12 +44,32 @@ func Router(app *fiber.App) {
 
 	app.Get("/orders", controller.AllOrders)
 	app.Get("/orders/user/:id", controller.GetOrdersByUserID)
-	app.Get("/orders/user/:id/pending", controller.GetOrderPending)
+	app.Get("/orders/user/:id/pending", controller.GetOrderByUserIDPending)
 	app.Get("/order/:id", controller.GetOrder)
 	app.Get("/order/user/:id", controller.GetOrderByUserID)
 	app.Post("/orders", controller.CreateOrder)
 	app.Put("/order/:id", controller.UpdateOrder)
 	app.Delete("/order/:id", controller.DeleteOrder)
+
+	app.Get("/address", controller.AllAddress)
+	app.Get("/address/:id", controller.GetAddress)
+	app.Get("/address/user/:id", controller.GetAddressByUserID)
+	app.Post("/address", controller.CreateAddress)
+	app.Put("/address/:id", controller.UpdateAddress)
+	app.Delete("/address/:id", controller.DeleteAddress)
+
+	app.Get("/delivery", controller.AllDelivery)
+	app.Post("/delivery", controller.CreateDelivery)
+
+	app.Get("/payments", controller.AllPayments)
+	app.Get("/payment/:id", controller.GetPayment)
+	app.Get("/payment/user/:id", controller.GetPaymentsByUserID)
+	app.Post("/payments", controller.CreatePayment)
+	app.Delete("/payment/:id", controller.DeletePayment)
+
+	app.Get("/banks", controller.AllBanks)
+	app.Post("/banks", controller.CreateBank)
+	app.Delete("/bank/:id", controller.DeleteBank)
 
 	app.Post("/upload", controller.Upload)
 	app.Static("/uploads", "src/uploads")

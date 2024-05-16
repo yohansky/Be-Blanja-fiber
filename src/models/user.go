@@ -14,7 +14,7 @@ type User struct {
 	Password []byte `json:"-"`
 	RoleId   uint
 	Role     Role `gorm:"foreignKey:RoleId"`
-	// Photo string
+	Photo    string
 	// StoreDesc string
 }
 

@@ -17,8 +17,8 @@ func main() {
 	// defer config.DB.Close()
 	app := fiber.New()
 	app.Use(cors.New(cors.Config{
-		AllowCredentials: false,
-		AllowOrigins:     "*",
+		AllowCredentials: true,
+		AllowOrigins:     "http://localhost:3000",
 		AllowMethods:     "GET,POST,PUT,DELETE",
 	}))
 

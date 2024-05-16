@@ -15,6 +15,8 @@ type Product struct {
 	Image       string
 	UserId      uint
 	User        User `gorm:"foreignKey:UserId"`
+	// CategoryId  uint
+	// Category    Category `gorm:"foreignKey:CategoryId"`
 }
 
 func (product *Product) Count(db *gorm.DB) int64 {

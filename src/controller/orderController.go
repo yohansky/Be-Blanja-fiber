@@ -36,6 +36,17 @@ func GetOrderByUserID(c *fiber.Ctx) error {
 	return c.JSON(order)
 }
 
+func GetOrderByUserIDPending(c *fiber.Ctx) error {
+	id := c.Params("id")
+
+	var order []models.Order
+	if err := config.DB.Where("user_id = ? AND status = ?", id, "pending").Preload("Product").First(&order).Error; err != nil {
+		return c.JSON(fiber.Map{"Error": "User not found"})
+	}
+
+	return c.JSON(order)
+}
+
 func CreateOrder(c *fiber.Ctx) error {
 	var order models.Order
 
