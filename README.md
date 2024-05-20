@@ -17,11 +17,11 @@
   - [Documentation](#documentation)
   - [Related Project](#related-project)
  
-# About The Project
+## About The Project
 
 The Blanja e-commerce website project is an online platform designed to make it easier for users to make buying and selling transactions online. This website was developed using React.js and Redux frontend technologies to optimize display performance and efficiency as well as state management. On the backend, this website uses Golang with Fiber Framework technology which functions as a server to manage data taken from Cloudinary. Cloudinary functions as an image data store so that it allows users to easily view images of each product being sold.
 
-## Built With
+### Built With
 These are the libraries and service used for building this backend API
 
 - [Golang](https://go.dev/)
@@ -30,7 +30,7 @@ These are the libraries and service used for building this backend API
 - [Json Web Token](https://jwt.io/)
 - [Gorm.io](https://gorm.io/index.html)
 
-# Installation
+## Installation
 1. Clone this repository
 
 ```sh
@@ -76,14 +76,14 @@ npm dev
 npm lint
 ```
 
-## Documentation
+### Documentation
 
 - [Postman API colletion]()
 - [PostgreSQL database query](./query.sql)
 
 API endpoint list are also available as published postman documentation
 
-## Related Project
+### Related Project
 :rocket: [`Backend Blanja`](https://github.com/yohansky/Be-Blanja-fiber)
 
 :rocket: [`Frontend Blanja`](https://github.com/yohansky/Fe-Blanja-React)
