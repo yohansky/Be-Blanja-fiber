@@ -46,34 +46,23 @@ cd Be-Blanja-fiber
 3. Install all of the required modules
 
 ```sh
-npm install
+go mod tidy
 ```
 
 4. Create PostgreSQL database, query are provided in [query.sql](./query.sql)
 
 5. Create and configure `.env` file in the root directory, example credentials are provided in [.env.example](./.env.example)
 
-```txt
-- Please note that this server requires Google Drive API credentials and Gmail service account
-- Otherwise API endpoint with image upload and account register won't work properly
-```
-
 6. Run this command to run the server
 
 ```sh
-npm server
-```
-
-- Or run this command for running in development environment
-
-```sh
-npm dev
+air
 ```
 
 - Run this command for debugging and finding errors
 
 ```sh
-npm lint
+golangci-lint run
 ```
 
 ### Documentation
