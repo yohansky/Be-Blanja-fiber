@@ -72,6 +72,8 @@ golangci-lint run
 
 API endpoint list are also available as published postman documentation
 
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://documenter.getpostman.com/view/31330000/2sA3QniuZH)
+
 ### Related Project
 :rocket: [`Backend Blanja`](https://github.com/yohansky/Be-Blanja-fiber)
 
