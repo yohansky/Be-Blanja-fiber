@@ -17,7 +17,6 @@ import (
 func AllProducts(c *fiber.Ctx) error {
 	page, _ := strconv.Atoi(c.Query("page", "1"))
 
-	// Preload "User" relation
 	products := []models.Product{}
 	result := config.DB.Preload("User").Find(&products)
 

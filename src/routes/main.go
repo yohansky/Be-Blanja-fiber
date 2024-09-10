@@ -12,6 +12,9 @@ func Router(app *fiber.App) {
 	app.Post("/register/customer", controller.RegisterC)
 	app.Post("/login", controller.Login)
 
+	app.Get("/products", controller.AllProducts)
+	app.Get("/product/:id", controller.GetProduct)
+
 	app.Use(middleware.IsAuth)
 
 	app.Put("/user/info", controller.UpdateInfo)
