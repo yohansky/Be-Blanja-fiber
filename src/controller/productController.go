@@ -2,7 +2,9 @@ package controller
 
 import (
 	"backend-gin/src/config"
+	"backend-gin/src/helper"
 	"backend-gin/src/models"
+	"backend-gin/src/services"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -41,15 +43,84 @@ func GetProductsByUserID(c *fiber.Ctx) error {
 }
 
 func CreateProduct(c *fiber.Ctx) error {
-	var product models.Product
 
-	if err := c.BodyParser(&product); err != nil {
+	file, err := c.FormFile("Image")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString("Gagal mengunggah file: " + err.Error())
+	}
+
+	maxFileSize := int64(2 << 20)
+	if err := helper.SizeUploadValidation(file.Size, maxFileSize); err != nil {
 		return err
+	}
+
+	fileHeader, err := file.Open()
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("Gagal membuka file: " + err.Error())
+	}
+	defer fileHeader.Close()
+
+	buffer := make([]byte, 512)
+	if _, err := fileHeader.Read(buffer); err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("Gagal membaca file: " + err.Error())
+	}
+
+	validFileTypes := []string{"image/png", "image/jpeg", "image/jpg", "application/pdf"}
+	if err := helper.TypeUploadValidation(buffer, validFileTypes); err != nil {
+		return err
+	}
+
+	uploadResult, err := services.UploadCLoudinary(c, file)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+
+	// if err := c.BodyParser(&product); err != nil {
+	// 	return err
+	// }
+
+	form, err := c.MultipartForm()
+	if err != nil {
+		return err
+	}
+
+	// var product models.Product
+
+	values := form.Value
+
+	userID, err := strconv.ParseUint(values["UserId"][0], 10, 64)
+	if err != nil {
+		return err
+	}
+
+	price, err := strconv.ParseFloat(values["Price"][0], 64)
+	if err != nil {
+		return err
+	}
+
+	amount, err := strconv.ParseFloat(values["Amount"][0], 64)
+	if err != nil {
+		return err
+	}
+
+	product := models.Product{
+		Name:        values["Name"][0],
+		Price:       price,
+		Color:       values["Color"][0],
+		Size:        values["Size"][0],
+		Amount:      amount,
+		Condition:   values["Condition"][0],
+		Description: values["Description"][0],
+		Image:       uploadResult.SecureURL,
+		UserId:      uint(userID),
 	}
 
 	config.DB.Create(&product)
 
-	return c.JSON(product)
+	return c.JSON(fiber.Map{
+		"Message": "Product created",
+		"data":    product,
+	})
 }
 
 func GetProduct(c *fiber.Ctx) error {
